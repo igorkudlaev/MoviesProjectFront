@@ -7,24 +7,26 @@ export default () => {
   const axios = useAxiosInstance();
   return {
     list: async () => {
-      return axios.get<MovieDescription[]>('/movies-api/Movies');
+      const res = await axios.get<MovieDescription[]>('/movies');
+      return res.data;
     },
     description: async (movieId: number) => {
-      return axios.get<MovieDescription>(`/movies-api/Movies/${movieId}/Info`);
+      const res = await axios.get<MovieDescription>(`/movies/${movieId}`);
+      return res.data;
     },
     cast: async (movieId: number) => {
-      return axios.get<CastDto>(`/movies-api/Movies/${movieId}/Cast`);
+      const res = await axios.get<CastDto[]>(`movies/${movieId}/cast`);
+      return res.data;
     },
     comments: async (movieId: number) => {
-      return axios.get<CommentsDto>(`/movies-api/Movies/${movieId}/Comments`);
+      const res = await axios.get<CommentsDto>(`movies/${movieId}/comments`);
+      return res.data;
     },
     addComment: async (movieId: number, message: string) => {
-      return axios.post<Comment>(
-        `/movies-api/Movies/${movieId}/Comments/Post`,
-        {
-          message,
-        },
-      );
+      const res = await axios.post<Comment>(`/movies/${movieId}/comments`, {
+        message,
+      });
+      return res.data;
     },
   };
 };

@@ -1,12 +1,13 @@
 import {View, Text, StyleSheet} from 'react-native';
-import React, {useEffect} from 'react';
+import React from 'react';
 import ButtonRounded from '../../components/ButtonRounded';
 import MovieItem from '../../components/MovieItem';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MoviesStackParamList} from '../../routing/MoviesNavigator';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import MovieItemSceleton from '../../components/MovieItemSceleton';
-import {useMovieInfoContext} from '../../store/movie.info.context';
+import useMoviesApi from '../../api/movies/useMoviesApi';
+import {useQuery} from 'react-query';
 
 type MoviesListScreenNavigationProp = StackNavigationProp<
   MoviesStackParamList,
@@ -19,26 +20,31 @@ type MoviesListScreenRuteProp = RouteProp<
 
 const MovieDescriptionScreen = () => {
   const navigation = useNavigation<MoviesListScreenNavigationProp>();
-  const {params} = useRoute<MoviesListScreenRuteProp>();
-  const {movie, cast, loading, getInfo} = useMovieInfoContext();
-  useEffect(() => {
-    getInfo(params.movieId);
-  }, []);
+  const {
+    params: {movieId},
+  } = useRoute<MoviesListScreenRuteProp>();
+  const moviesApi = useMoviesApi();
+  const moviesQuery = useQuery(['movies', movieId], () =>
+    moviesApi.description(movieId),
+  );
+  const castQuery = useQuery(['cast', movieId], () => moviesApi.cast(movieId));
   const onNavigateComments = () => {
-    navigation.navigate('MovieComments', {movieId: params.movieId});
+    navigation.navigate('MovieComments', {movieId: movieId});
   };
 
   return (
     <View>
-      {loading ? (
+      {moviesQuery.isLoading && castQuery.isLoading ? (
         <MovieItemSceleton />
       ) : (
         <>
-          <MovieItem movieDescription={movie} disabled />
+          <MovieItem movieDescription={moviesQuery.data} disabled />
           <View style={styles.containerCastComments}>
             <View style={styles.castContainer}>
               <Text style={styles.castTitle}>Cast:</Text>
-              <Text style={styles.castDescription}>{cast.join(', ')}</Text>
+              <Text style={styles.castDescription}>
+                {castQuery.data?.map(({name}) => name).join(', ')}
+              </Text>
             </View>
             <ButtonRounded title="Show comments" onPress={onNavigateComments} />
           </View>

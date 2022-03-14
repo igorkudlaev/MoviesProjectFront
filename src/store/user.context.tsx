@@ -1,14 +1,22 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
+import * as Keychain from 'react-native-keychain';
+
+export type Tokens = {
+  access_token: string;
+  refresh_token: string;
+};
 
 type UserContextType = {
-  accessToken: string;
-  setAccessToken?: (value: string) => void;
+  tokens: Tokens;
+  setTokens?: (value: Tokens) => void;
   clearAccessToken?: () => void;
 };
 
 const initialState: UserContextType = {
-  accessToken: '',
+  tokens: {
+    access_token: '',
+    refresh_token: '',
+  },
 };
 
 const UserContext = React.createContext(initialState);
@@ -16,29 +24,28 @@ const UserContext = React.createContext(initialState);
 export const useUser = () => useContext(UserContext);
 
 export const UserContexProvider = ({children}: any) => {
-  const [accessToken, setAccessToken] = useState('');
+  const [tokens, setTokens] = useState(initialState.tokens);
   const [synced, setSynced] = useState(false);
   useEffect(() => {
-    if (accessToken) {
-      AsyncStorage.setItem('ACCESS_TOKEN', accessToken);
+    if (tokens.refresh_token && tokens.refresh_token) {
+      Keychain.setGenericPassword('token', JSON.stringify(tokens));
     }
-  }, [accessToken]);
+  }, [tokens]);
 
   useEffect(() => {
-    AsyncStorage.getItem('ACCESS_TOKEN').then(value => {
+    Keychain.getGenericPassword().then(value => {
       if (value) {
-        setAccessToken(value);
+        setTokens(JSON.parse(value.password));
       }
       setSynced(true);
     });
   }, []);
   const clearAccessToken = useCallback(() => {
-    setAccessToken('');
-    AsyncStorage.setItem('ACCESS_TOKEN', '');
+    setTokens(initialState.tokens);
+    Keychain.resetGenericPassword();
   }, []);
   return synced ? (
-    <UserContext.Provider
-      value={{accessToken, setAccessToken, clearAccessToken}}>
+    <UserContext.Provider value={{tokens, setTokens, clearAccessToken}}>
       {children}
     </UserContext.Provider>
   ) : (

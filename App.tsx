@@ -3,16 +3,24 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import RootNavigation from './src/routing/RootNavigator';
 import {UserContexProvider} from './src/store/user.context';
 import 'react-native-gesture-handler';
-import {MovieInfoContextProvider} from './src/store/movie.info.context';
+import {QueryClient, QueryClientProvider} from 'react-query';
+
+const queryClient = new QueryClient();
+
+if (__DEV__) {
+  import('react-query-native-devtools').then(({addPlugin}) => {
+    addPlugin({queryClient});
+  });
+}
 
 function App() {
   return (
     <SafeAreaProvider>
-      <UserContexProvider>
-        <MovieInfoContextProvider>
+      <QueryClientProvider client={queryClient}>
+        <UserContexProvider>
           <RootNavigation />
-        </MovieInfoContextProvider>
-      </UserContexProvider>
+        </UserContexProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

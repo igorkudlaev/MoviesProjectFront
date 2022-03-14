@@ -16,11 +16,13 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 
 const RootNavigation = () => {
-  const {accessToken} = useUser();
+  const {
+    tokens: {access_token},
+  } = useUser();
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {!accessToken ? (
+        {!access_token ? (
           <Stack.Screen
             name="Auth"
             component={AuthNavigator}

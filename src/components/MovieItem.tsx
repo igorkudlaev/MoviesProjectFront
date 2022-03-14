@@ -6,7 +6,7 @@ import {Text} from 'react-native-elements';
 
 type PropsType = {
   onPress?: () => void;
-  movieDescription: MovieDescription;
+  movieDescription?: MovieDescription;
   disabled?: boolean;
 };
 
@@ -29,7 +29,7 @@ const MovieItem = ({movieDescription, ...props}: PropsType) => {
       style={styles.container}
       onPress={props.onPress}
       disabled={props.disabled}>
-      <Image source={{uri: movieDescription.posterUrl}} style={styles.image} />
+      <Image source={{uri: movieDescription?.posterUrl}} style={styles.image} />
       <View style={styles.titlesOfSecription}>
         <TitleOfDescription>Title</TitleOfDescription>
         <TitleOfDescription>Year</TitleOfDescription>
@@ -37,10 +37,10 @@ const MovieItem = ({movieDescription, ...props}: PropsType) => {
         <TitleOfDescription>Rating</TitleOfDescription>
       </View>
       <View style={styles.valueOfDescriptionContainer}>
-        <ValueOfDescription>{movieDescription.title}</ValueOfDescription>
-        <ValueOfDescription>{movieDescription.year}</ValueOfDescription>
-        <ValueOfDescription>{movieDescription.duration}</ValueOfDescription>
-        <ValueOfDescription>{movieDescription.rating}</ValueOfDescription>
+        <ValueOfDescription>{movieDescription?.title}</ValueOfDescription>
+        <ValueOfDescription>{movieDescription?.year}</ValueOfDescription>
+        <ValueOfDescription>{movieDescription?.duration}</ValueOfDescription>
+        <ValueOfDescription>{movieDescription?.rating}</ValueOfDescription>
       </View>
     </TouchableOpacity>
   );

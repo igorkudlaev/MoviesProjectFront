@@ -3,26 +3,21 @@ import React, {useState} from 'react';
 import {Input} from 'react-native-elements';
 import ButtonRounded from '../../components/ButtonRounded';
 import useAuthApi from '../../api/auth/useAuthApi';
-import useRequest from '../../api/useRequest';
 import {useUser} from '../../store/user.context';
+import SignInGoogle from './components/SignInGoogle';
+import {useMutation} from 'react-query';
 
 const SignInScreen = () => {
   const authApi = useAuthApi();
-  const {sendRequest, loading} = useRequest();
-  const {setAccessToken} = useUser();
+  const {setTokens} = useUser();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const onLogIn = async () => {
-    const response = await sendRequest(
-      authApi.login({
-        username,
-        password,
-      }),
-    );
-    if (response) {
-      setAccessToken?.(response.data.access_token);
-    }
-  };
+  const mutation = useMutation(
+    (_: any) => authApi.login({username, password}),
+    {
+      onSuccess: data => setTokens?.(data),
+    },
+  );
 
   return (
     <View style={styles.backgroundStyle}>
@@ -50,9 +45,10 @@ const SignInScreen = () => {
       <ButtonRounded
         title="Sign In"
         containerStyle={styles.buttonStyle}
-        loading={loading}
-        onPress={onLogIn}
+        loading={mutation.isLoading}
+        onPress={mutation.mutate}
       />
+      <SignInGoogle />
     </View>
   );
 };

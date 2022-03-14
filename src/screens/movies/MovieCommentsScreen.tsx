@@ -1,12 +1,11 @@
 import {FlatList, StyleSheet} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React from 'react';
 import CommentItem from '../../components/CommentItem';
 import InputWithSender from '../../components/InputWithSender';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {MoviesStackParamList} from '../../routing/MoviesNavigator';
 import useMoviesApi from '../../api/movies/useMoviesApi';
-import useRequest from '../../api/useRequest';
-import {CommentsDto} from '../../api/movies/dto/comments.dto';
+import {useMutation, useQuery} from 'react-query';
 
 type MoviesListScreenRuteProp = RouteProp<
   MoviesStackParamList,
@@ -14,43 +13,33 @@ type MoviesListScreenRuteProp = RouteProp<
 >;
 
 const MovieCommentsScreen = () => {
-  const [comments, setComments] = useState<CommentsDto>([]);
   const {params} = useRoute<MoviesListScreenRuteProp>();
   const moviesApi = useMoviesApi();
-  const {sendRequest: sendRequestMessages, loading: loadingMessages} =
-    useRequest();
-  const {sendRequest: sendRequestNewMessage, loading: loadingNewMessage} =
-    useRequest();
-  const loadData = useCallback(() => {
-    sendRequestMessages(moviesApi.comments(params.movieId)).then(res => {
-      if (res) {
-        setComments(res.data);
-      }
-    });
-  }, [moviesApi, params.movieId, sendRequestMessages]);
-  useEffect(() => {
-    loadData();
-  }, []);
-  const onSendMessage = async (message: string) => {
-    sendRequestNewMessage(moviesApi.addComment(params.movieId, message)).then(
-      res => {
-        if (res) {
-          setComments([res.data, ...comments]);
-        }
-      },
-    );
-  };
+  const commentsQuery = useQuery(['comments', params.movieId], () =>
+    moviesApi.comments(params.movieId),
+  );
 
+  const commentsMutation = useMutation(
+    (value: string) => moviesApi.addComment(params.movieId, value),
+    {
+      onSuccess: comment => {
+        commentsQuery.data?.push(comment);
+      },
+    },
+  );
   return (
     <>
       <FlatList
         style={style.container}
-        data={comments}
-        refreshing={loadingMessages}
-        onRefresh={loadData}
+        data={commentsQuery.data}
+        refreshing={commentsQuery.isLoading}
+        onRefresh={commentsQuery.refetch}
         renderItem={value => <CommentItem>{value.item.message}</CommentItem>}
       />
-      <InputWithSender onSend={onSendMessage} loading={loadingNewMessage} />
+      <InputWithSender
+        onSend={commentsMutation.mutate}
+        loading={commentsMutation.isLoading}
+      />
     </>
   );
 };

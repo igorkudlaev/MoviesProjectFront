@@ -1,1 +1,5 @@
-export type CastDto = string[];
+export type CastDto = {
+  id: number;
+  movieId: number;
+  name: string;
+};
