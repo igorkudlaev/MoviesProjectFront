@@ -23,7 +23,7 @@ const UserContext = React.createContext(initialState);
 
 export const useUser = () => useContext(UserContext);
 
-export const UserContexProvider = ({children}: any) => {
+export const UserContextProvider = ({children}: any) => {
   const [tokens, setTokens] = useState(initialState.tokens);
   const [synced, setSynced] = useState(false);
   useEffect(() => {
@@ -45,7 +45,12 @@ export const UserContexProvider = ({children}: any) => {
     Keychain.resetGenericPassword();
   }, []);
   return synced ? (
-    <UserContext.Provider value={{tokens, setTokens, clearAccessToken}}>
+    <UserContext.Provider
+      value={{
+        tokens,
+        setTokens,
+        clearAccessToken,
+      }}>
       {children}
     </UserContext.Provider>
   ) : (

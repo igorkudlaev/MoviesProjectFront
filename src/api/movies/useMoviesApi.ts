@@ -1,10 +1,10 @@
+import {useAxios} from '../../store/axios.context';
 import {MovieDescription} from '../../types/movie/movie.description';
-import {useAxiosInstance} from '../axios.instance';
 import {CastDto} from './dto/cast.dto';
 import {Comment, CommentsDto} from './dto/comments.dto';
 
 export default () => {
-  const axios = useAxiosInstance();
+  const {axios} = useAxios();
   return {
     list: async () => {
       const res = await axios.get<MovieDescription[]>('/movies');
