@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Linking} from 'react-native';
 import React from 'react';
 import ButtonRounded from '../../components/ButtonRounded';
 import MovieItem from '../../components/MovieItem';
@@ -8,6 +8,8 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import MovieItemSceleton from '../../components/MovieItemSceleton';
 import useMoviesApi from '../../api/movies/useMoviesApi';
 import {useQuery} from 'react-query';
+import {FlatList} from 'react-native-gesture-handler';
+import TrailerPreview from './components/TrailerPreview';
 
 type MoviesListScreenNavigationProp = StackNavigationProp<
   MoviesStackParamList,
@@ -32,20 +34,46 @@ const MovieDescriptionScreen = () => {
     navigation.navigate('MovieComments', {movieId: movieId});
   };
 
+  const trailersQuery = useQuery(['trailers', movieId], () =>
+    moviesApi.trailers(movieId),
+  );
+
+  const onNavigateTrailer = (url: string) => {
+    Linking.openURL(url);
+  };
+
   return (
     <View>
       {moviesQuery.isLoading && castQuery.isLoading ? (
-        <MovieItemSceleton />
+        <View style={styles.containerWithPaddings}>
+          <MovieItemSceleton />
+        </View>
       ) : (
         <>
           <MovieItem movieDescription={moviesQuery.data} disabled />
-          <View style={styles.containerCastComments}>
+          <View style={styles.containerWithPaddings}>
             <View style={styles.castContainer}>
-              <Text style={styles.castTitle}>Cast:</Text>
+              <Text style={styles.title}>Cast:</Text>
               <Text style={styles.castDescription}>
                 {castQuery.data?.map(({name}) => name).join(', ')}
               </Text>
             </View>
+          </View>
+          <View style={styles.containerWithPaddings}>
+            <Text style={styles.title}>Trailers:</Text>
+          </View>
+          <FlatList
+            data={trailersQuery.data}
+            renderItem={info => (
+              <TrailerPreview
+                uri={info.item.preview}
+                onPress={() => onNavigateTrailer(info.item.url)}
+              />
+            )}
+            style={styles.trailersContainer}
+            horizontal={true}
+          />
+          <View style={styles.containerWithPaddings}>
             <ButtonRounded title="Show comments" onPress={onNavigateComments} />
           </View>
         </>
@@ -61,7 +89,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingBottom: 20,
   },
-  castTitle: {
+  title: {
     color: '#b9b9b9',
     fontSize: 16,
   },
@@ -69,7 +97,11 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
   },
-  containerCastComments: {
+  containerWithPaddings: {
     paddingHorizontal: 10,
+  },
+  trailersContainer: {
+    marginBottom: 10,
+    paddingVertical: 10,
   },
 });
