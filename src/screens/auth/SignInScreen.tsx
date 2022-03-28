@@ -15,7 +15,9 @@ const SignInScreen = () => {
   const mutation = useMutation(
     (_: any) => authApi.login({username, password}),
     {
-      onSuccess: data => setTokens?.(data),
+      onSuccess: data => {
+        setTokens?.(data);
+      },
     },
   );
 

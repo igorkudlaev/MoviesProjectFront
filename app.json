@@ -1,4 +1,7 @@
 {
   "name": "MoviesProject",
-  "displayName": "MoviesProject"
+  "displayName": "MoviesProject",
+  "splash": {
+    "image": "./assets/splash-screen.png"
+  }
 }

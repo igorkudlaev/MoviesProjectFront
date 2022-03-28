@@ -4,6 +4,11 @@ import SignInScreen from '../screens/auth/SignInScreen';
 
 const Stack = createStackNavigator();
 
+export type MoviesStackParamList = {
+  LogIn: undefined;
+  Biometric: undefined;
+};
+
 const AuthNavigation = () => {
   return (
     <Stack.Navigator initialRouteName="LogIn">

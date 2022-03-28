@@ -19,9 +19,10 @@ const RootNavigation = () => {
   const {
     tokens: {access_token},
   } = useUser();
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName={!access_token ? 'Auth' : 'Movies'}>
         {!access_token ? (
           <Stack.Screen
             name="Auth"

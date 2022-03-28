@@ -5,7 +5,10 @@ import {UserContextProvider} from './src/store/user.context';
 import 'react-native-gesture-handler';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import {AxiosContextProvider} from './src/store/axios.context';
+import {BiometricContextProvider} from './src/store/biometric.auth';
+import {LogBox} from 'react-native';
 
+LogBox.ignoreAllLogs();
 const queryClient = new QueryClient();
 
 if (__DEV__) {
@@ -18,11 +21,13 @@ function App() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <UserContextProvider>
-          <AxiosContextProvider>
-            <RootNavigation />
-          </AxiosContextProvider>
-        </UserContextProvider>
+        <BiometricContextProvider>
+          <UserContextProvider>
+            <AxiosContextProvider>
+              <RootNavigation />
+            </AxiosContextProvider>
+          </UserContextProvider>
+        </BiometricContextProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
